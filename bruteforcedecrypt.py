@@ -4,26 +4,34 @@
 # --------
 
 import PyPDF2 as pypdf
+from time import time
+import os
+
+
+startTime = time()
+thisFolder = os.path.dirname(os.path.abspath(__file__))
+txtFile = os.path.join(thisFolder, 'dictionary.txt')
+pdfFile = os.path.join(thisFolder, 'encrypted.pdf')
 
 
 # 1. load password list
-def txt_to_list(document):
-    txtfile = open(document)
-    txtfile_read = txtfile.readlines()
+def txtToList(document):
+    txtfile = open(txtFile)
+    txtfileRead = txtfile.readlines()
     list_of_lists = []
     
-    for line in txtfile_read:
+    for line in txtfileRead:
         stripped_line = line.strip()
         line_list = stripped_line.split()
         list_of_lists.append(line_list)
     
     return(list_of_lists)
 
-wordlist = txt_to_list('dictionary.txt')
+wordlist = txtToList(txtFile)
 
 # 2. iterate over password list
-numbertry = 0
-pdfReader = pypdf.PdfFileReader(open('encrypted.pdf', 'rb'))
+numberTry = 0
+pdfReader = pypdf.PdfFileReader(open(pdfFile, 'rb'))
 
 if not pdfReader.isEncrypted:
     print('This file is not encrypted. You can sucessfully open it.')
@@ -33,23 +41,25 @@ else:
         word = str(word).strip("[']")
         trypass = str(word)
         # checking upper case
-        numbertry += 1
-        trypass_upper = str.upper(trypass)
-        print('Trying dencryption by: {}'.format(trypass_upper))
-        print('Passwords tried: ' + str(numbertry))
-        result = pdfReader.decrypt(trypass_upper)
-        print(result)
+        numberTry += 1
+        tryPassUpperCase = str.upper(trypass)
+        print('Trying dencryption by: {}'.format(tryPassUpperCase))
+        print('Passwords tried: ' + str(numberTry))
+        result = pdfReader.decrypt(tryPassUpperCase)
         if result == 1:
-            print('Password found: ' + trypass_upper)
+            print('PASSWORD FOUND IN %s TRIES: %s' % (str(numberTry), tryPassUpperCase))
             break
         # checking lower case
-        numbertry += 1
-        trypass_lower = str.lower(trypass)
-        print('Trying dencryption by: {}'.format(trypass_lower))
-        print('Passwords tried: ' + str(numbertry))
-        result = pdfReader.decrypt(trypass_lower)
-        print(result)
+        numberTry += 1
+        tryPassLowerCase = str.lower(trypass)
+        print('Trying dencryption by: {}'.format(tryPassLowerCase))
+        print('Passwords tried: ' + str(numberTry))
+        result = pdfReader.decrypt(tryPassLowerCase)
         if result == 1:
-            print('PASSWORD FOUND IN %s TRIES: %s' % (str(numbertry),trypass_lower))
+            print('PASSWORD FOUND IN %s TRIES: %s' % (str(numberTry), tryPassLowerCase))
             break
         continue
+
+endTime = time()
+elapsedTime = round((endTime - startTime), 1)
+print('IT TOOK %s SECONDS.' % (str(elapsedTime)))
